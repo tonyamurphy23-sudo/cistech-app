@@ -32,6 +32,8 @@ type Referral = {
 type View = "queue" | "new" | "profile" | "team" | "activity";
 
 const SLA_MS = 15 * 60 * 1000;
+// Shows a "sample data only" notice until the Supabase and Anthropic BAAs are in place.
+const PROTOTYPE = import.meta.env.VITE_PROTOTYPE_MODE !== "false";
 const IDLE_MS = 15 * 60 * 1000;
 
 // Supabase reads and clears the URL hash on load, so note invite and reset links first.
@@ -251,6 +253,7 @@ function renderShell() {
       </nav>
       <button class="btn small" id="signout">Sign out</button>
     </div></header>
+    ${PROTOTYPE ? `<div class="notice"><div class="wrap">Prototype. Use made-up sample referrals only: no real patient information until CIS Tech's BAAs are signed.</div></div>` : ""}
     <div class="banner" id="banner" hidden><div class="wrap" id="banner-text"></div></div>
     <main class="wrap" id="main"></main>`;
   root.querySelectorAll<HTMLButtonElement>("[data-view]").forEach((b) => (b.onclick = () => setView(b.dataset.view as View)));

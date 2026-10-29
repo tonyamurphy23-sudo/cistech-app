@@ -54,6 +54,8 @@ code { font-family: var(--mono); word-break: break-all; }
 .tab { background: none; border: 0; padding: 8px 14px; border-radius: 8px; font-weight: 600; color: var(--muted); white-space: nowrap; }
 .tab[aria-selected="true"] { background: var(--sunken); color: var(--ink); }
 .count { display: inline-block; min-width: 20px; margin-left: 6px; padding: 0 6px; border-radius: 999px; background: var(--blue); color: var(--blue-ink); font-size: 0.75rem; text-align: center; }
+.notice { background: var(--warn-bg); color: var(--warn); font-size: 0.85rem; }
+.notice .wrap { padding-block: 8px; }
 .banner { background: var(--bad-bg); color: var(--bad); font-size: 0.9rem; }
 .banner .wrap { padding-block: 8px; }
 main { padding-block: 24px 64px; }

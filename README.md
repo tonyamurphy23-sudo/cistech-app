@@ -25,7 +25,7 @@ docs/HIPAA-CHECKLIST.md        agreements, settings and policies needed for HIPA
 
 ## Set up Supabase
 
-1. Create a Supabase project on the **Team plan with the HIPAA add-on**, and sign the BAA (see the checklist).
+1. Create a Supabase project. For the prototype any plan works, with made-up sample referrals only. Before real patient information goes in, move to the **Team plan with the HIPAA add-on**, sign the BAA (see the checklist) and set `VITE_PROTOTYPE_MODE=false`.
 2. Install the [Supabase CLI](https://supabase.com/docs/guides/cli) and link the project:
    ```sh
    supabase login
