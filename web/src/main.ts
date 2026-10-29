@@ -402,7 +402,10 @@ function logViews() {
   const key = ids.join(",");
   if (!ids.length || key === state.loggedIds) return;
   state.loggedIds = key;
-  supabase.rpc("log_access", { p_agency: state.agency!.id, p_record_ids: ids, p_context: "queue" });
+  // Supabase queries run only when awaited or then'd.
+  supabase.rpc("log_access", { p_agency: state.agency!.id, p_record_ids: ids, p_context: "queue" }).then(({ error }) => {
+    if (error) state.loggedIds = ""; // try again on the next render
+  });
 }
 
 // ----- New referral -----
@@ -542,9 +545,10 @@ async function saveProfile(e: Event) {
     services: checked("svc"),
     payers: checked("pay"),
   };
+  const agencyChanged = name !== a.name || type !== a.provider_type;
   const [r1, r2] = await Promise.all([
     supabase.from("facility_profiles").update(profile).eq("agency_id", a.id),
-    supabase.from("agencies").update({ name, provider_type: type }).eq("id", a.id),
+    agencyChanged ? supabase.from("agencies").update({ name, provider_type: type }).eq("id", a.id) : { error: null },
   ]);
   const err = r1.error ?? r2.error;
   if (err) return setStatus("#p-st", `Couldn't save: ${err.message}`, true);

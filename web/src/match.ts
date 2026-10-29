@@ -73,7 +73,7 @@ export function replyText(
   agencyName: string,
 ): string {
   const who = (r.source_contact || r.source || "there").split(",")[0].trim();
-  const pt = r.patient_initials || "this patient";
+  const pt = (r.patient_initials || "this patient").replace(/\.$/, "");
   if (decision === "accepted") {
     const when = r.start_date ? formatDate(r.start_date) : "the requested date";
     return `Hi ${who}, thank you for the referral for ${pt}. ${agencyName} can accept and start care on ${when}. Please send the orders and clinical records so we can complete intake.`;

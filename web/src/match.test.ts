@@ -51,6 +51,7 @@ describe("replyText", () => {
   it("writes an acceptance addressed to the contact", () => {
     const text = replyText(ref, "accepted", recommend(base, profile), "Sample Home Health");
     expect(text).toContain("Hi Dana W.,");
+    expect(text).toContain("for R.M. Sample Home Health");
     expect(text).toContain("Sample Home Health can accept and start care on Oct 30");
   });
 

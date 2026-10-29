@@ -109,4 +109,8 @@ select pg_temp.check((select fields @> array['reply_text', 'status'] from public
 select pg_temp.check(pg_temp.fails($q$ delete from public.audit_log $q$), 'audit log cannot be deleted');
 select pg_temp.check(pg_temp.fails($q$ insert into public.audit_log (action) values ('fake') $q$), 'audit log cannot be forged');
 
+update public.agencies set name = name;
+select pg_temp.check((select count(*) = 0 from public.audit_log where table_name = 'agencies' and action = 'update'),
+  'an update that changes nothing is not logged');
+
 select 'ALL CHECKS PASSED' as result;
