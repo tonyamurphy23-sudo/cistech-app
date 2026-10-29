@@ -1,0 +1,9 @@
+# Security headers for Netlify or Cloudflare Pages. Replace YOUR-PROJECT with
+# the Supabase project ref. (On Vercel, put the same headers in vercel.json.)
+/*
+  Content-Security-Policy: default-src 'self'; connect-src 'self' https://YOUR-PROJECT.supabase.co wss://YOUR-PROJECT.supabase.co; style-src 'self' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; frame-ancestors 'none'; base-uri 'none'; form-action 'self'
+  Strict-Transport-Security: max-age=63072000; includeSubDomains; preload
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: no-referrer
+  Permissions-Policy: camera=(), microphone=(), geolocation=()
+  Cache-Control: no-store
