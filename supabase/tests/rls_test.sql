@@ -28,7 +28,7 @@ exception when others then
 end;
 $$;
 
-grant execute on all functions in schema pg_temp to authenticated;
+grant execute on all functions in schema pg_temp to authenticated, anon;
 
 set role authenticated;
 
@@ -112,5 +112,19 @@ select pg_temp.check(pg_temp.fails($q$ insert into public.audit_log (action) val
 update public.agencies set name = name;
 select pg_temp.check((select count(*) = 0 from public.audit_log where table_name = 'agencies' and action = 'update'),
   'an update that changes nothing is not logged');
+
+-- Website demo requests: anyone can send one, nobody can read them back.
+reset role;
+set role anon;
+select set_config('request.jwt.claims', '', false);
+insert into public.demo_requests (name, business, email) values ('Test Person', 'Test Agency', 'test@example.test');
+select pg_temp.check(pg_temp.fails($q$ select * from public.demo_requests $q$), 'visitors cannot read demo requests');
+select pg_temp.check(pg_temp.fails($q$ insert into public.demo_requests (name, business, email, status) values ('a', 'b', 'c@d.e', 'booked') $q$),
+  'visitors cannot set a request''s status');
+set role authenticated;
+select pg_temp.act_as('00000000-0000-0000-0000-00000000000a', 'aal2');
+select pg_temp.check(pg_temp.fails($q$ select * from public.demo_requests $q$), 'agency users cannot read demo requests');
+reset role;
+select pg_temp.check((select count(*) = 1 from public.demo_requests), 'the request was saved');
 
 select 'ALL CHECKS PASSED' as result;

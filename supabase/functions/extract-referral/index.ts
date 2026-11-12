@@ -9,7 +9,7 @@ import Anthropic from "@anthropic-ai/sdk";
 import { betaZodOutputFormat } from "@anthropic-ai/sdk/helpers/beta/zod";
 import { z } from "zod";
 import { PAYER_IDS, PAYERS, PROVIDER_TYPES, SERVICE_IDS, SERVICES, labelOf } from "../_shared/catalog.ts";
-import { callerClient, corsHeaders, isUuid, json, roleInAgency, serviceClient } from "../_shared/http.ts";
+import { appUrl, callerClient, corsHeaders, isUuid, json, roleInAgency, serviceClient } from "../_shared/http.ts";
 
 const MAX_TEXT = 20_000;
 
@@ -45,24 +45,24 @@ ${text}
 }
 
 Deno.serve(async (req) => {
-  if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
-  if (req.method !== "POST") return json({ error: "Use POST." }, 405);
+  if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders(req) });
+  if (req.method !== "POST") return json(req, { error: "Use POST." }, 405);
 
   let body: { agencyId?: unknown; text?: unknown };
   try {
     body = await req.json();
   } catch {
-    return json({ error: "Send JSON with agencyId and text." }, 400);
+    return json(req, { error: "Send JSON with agencyId and text." }, 400);
   }
   const { agencyId, text } = body;
   if (!isUuid(agencyId) || typeof text !== "string" || !text.trim()) {
-    return json({ error: "Send JSON with agencyId and text." }, 400);
+    return json(req, { error: "Send JSON with agencyId and text." }, 400);
   }
-  if (text.length > MAX_TEXT) return json({ error: `Referral text is over ${MAX_TEXT} characters.` }, 413);
+  if (text.length > MAX_TEXT) return json(req, { error: `Referral text is over ${MAX_TEXT} characters.` }, 413);
 
   const caller = callerClient(req);
   const member = await roleInAgency(caller, agencyId);
-  if (!member) return json({ error: "Sign in with two-step verification as a member of this agency." }, 403);
+  if (!member) return json(req, { error: "Sign in with two-step verification as a member of this agency." }, 403);
 
   const { data: agency } = await caller.from("agencies").select("provider_type").eq("id", agencyId).single();
 
@@ -79,21 +79,21 @@ Deno.serve(async (req) => {
       ],
     });
     if (response.stop_reason === "refusal" || !response.parsed_output) {
-      return json({ error: "Claude couldn't read this referral. Fill in the form by hand." }, 422);
+      return json(req, { error: "Claude couldn't read this referral. Fill in the form by hand." }, 422);
     }
     fields = response.parsed_output;
   } catch (err) {
     // Log the error type only. Never log the referral text or the response.
     if (err instanceof Anthropic.RateLimitError) {
       console.error("extract-referral: rate limited");
-      return json({ error: "Too many requests right now. Try again in a minute." }, 429);
+      return json(req, { error: "Too many requests right now. Try again in a minute." }, 429);
     }
     if (err instanceof Anthropic.APIError) {
       console.error(`extract-referral: Claude API error ${err.status}`);
-      return json({ error: "Claude is unavailable right now. Fill in the form by hand." }, 502);
+      return json(req, { error: "Claude is unavailable right now. Fill in the form by hand." }, 502);
     }
     console.error("extract-referral: unexpected error");
-    return json({ error: "Something went wrong reading the referral." }, 500);
+    return json(req, { error: "Something went wrong reading the referral." }, 500);
   }
 
   await serviceClient().from("audit_log").insert({
@@ -104,5 +104,5 @@ Deno.serve(async (req) => {
   });
 
   if (!/^\d{4}-\d{2}-\d{2}$/.test(fields.startDate)) fields.startDate = "";
-  return json({ fields });
+  return json(req, { fields });
 });

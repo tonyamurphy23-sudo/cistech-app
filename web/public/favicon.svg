@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120">
+  <defs>
+    <linearGradient id="blue" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#1E6FD9"/>
+      <stop offset="1" stop-color="#0A2E6E"/>
+    </linearGradient>
+    <linearGradient id="silver" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#FFFFFF"/>
+      <stop offset="0.45" stop-color="#D5DCE4"/>
+      <stop offset="1" stop-color="#9AA6B4"/>
+    </linearGradient>
+    <linearGradient id="silverDark" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#9AA6B4"/>
+      <stop offset="1" stop-color="#5E6B7A"/>
+    </linearGradient>
+    <linearGradient id="staff" gradientUnits="userSpaceOnUse" x1="53" y1="0" x2="67" y2="0">
+      <stop offset="0" stop-color="#FFFFFF"/>
+      <stop offset="0.5" stop-color="#D5DCE4"/>
+      <stop offset="1" stop-color="#9AA6B4"/>
+    </linearGradient>
+  </defs>
+    <rect x="4" y="4" width="112" height="112" rx="30" fill="url(#blue)"/>
+    <!-- staff -->
+    <rect x="56" y="30" width="8" height="72" rx="4" fill="url(#staff)"/>
+    <!-- information node atop the staff -->
+    <circle cx="60" cy="22" r="7" fill="url(#silver)"/>
+    <circle cx="60" cy="22" r="2.8" fill="#0A2E6E"/>
+    <!-- serpent, with a blue keyline so it reads as wrapping the staff -->
+    <path d="M76 36 C52 30 42 45 60 51 C78 57 78 68 60 72 C42 76 42 88 60 92 C67 94 70 98 66 102" fill="none" stroke="#0E3A82" stroke-width="12" stroke-linecap="round"/>
+    <path d="M76 36 C52 30 42 45 60 51 C78 57 78 68 60 72 C42 76 42 88 60 92 C67 94 70 98 66 102" fill="none" stroke="url(#silver)" stroke-width="6.5" stroke-linecap="round"/>
+    <circle cx="77" cy="36.5" r="5" fill="url(#silver)"/>
+    <!-- staff passes in front at the middle crossing -->
+    <rect x="54" y="67.5" width="12" height="9" fill="#0E3A82"/>
+    <rect x="56" y="62" width="8" height="20" fill="url(#staff)"/>
+</svg>

@@ -125,7 +125,7 @@ function renderSignIn(note = "") {
   $("#forgot").onclick = async () => {
     const email = $<HTMLInputElement>("#email").value.trim();
     if (!email) return setStatus("#st", "Enter your email first, then select Forgot your password.", true);
-    await supabase.auth.resetPasswordForEmail(email, { redirectTo: location.origin });
+    await supabase.auth.resetPasswordForEmail(email, { redirectTo: `${location.origin}/app/` });
     setStatus("#st", "If that email has an account, a reset link is on its way.");
   };
 }

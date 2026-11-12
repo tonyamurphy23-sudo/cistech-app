@@ -17,7 +17,8 @@ supabase/
   functions/invite-member      owners and admins invite teammates
   functions/_shared            service/payer catalog and helpers
   tests/rls_test.sql           access rule tests
-web/                           the app (sign-in, two-step verification, queue, intake, profile, team, activity log)
+web/index.html                 the public website (www.cis-tech.ai) with a demo request form
+web/app/                       the app at /app/ (sign-in, two-step verification, queue, intake, profile, team, activity log)
 scripts/test-db.sh             runs the migration and access tests on a throwaway Postgres
 scripts/check-functions.sh     type-checks the edge functions
 docs/HIPAA-CHECKLIST.md        agreements, settings and policies needed for HIPAA
@@ -58,8 +59,13 @@ add `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY` and `VITE_PROTOTYPE_MODE`
 as environment variables. `web/vercel.json` sets the build and the security
 headers. (On Netlify or Cloudflare Pages, use `web/public/_headers` instead.)
 
-After the first deploy, set the Supabase function secret `APP_ORIGIN` and the
-Auth Site URL to the Vercel address, or the app can't call its functions.
+After the first deploy, set the Supabase function secret `APP_ORIGIN` to the
+site address(es), comma-separated with the main one first (for example
+`https://www.cis-tech.ai,https://cistech-app.vercel.app`), and the Auth Site URL
+to `https://www.cis-tech.ai/app/`, or the app can't call its functions.
+
+Demo requests from the website land in the `demo_requests` table; read them in
+the Supabase Table Editor.
 
 The first person to sign up creates the agency and becomes its owner. They
 invite teammates from the Team tab.

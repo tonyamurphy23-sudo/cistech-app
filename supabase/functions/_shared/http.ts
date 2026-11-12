@@ -1,18 +1,29 @@
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 
-const allowedOrigin = Deno.env.get("APP_ORIGIN") ?? "";
+// APP_ORIGIN: the site address(es) allowed to call these functions, comma-separated,
+// e.g. "https://www.cis-tech.ai,https://cistech-app.vercel.app". The first is used in emails.
+const allowedOrigins = (Deno.env.get("APP_ORIGIN") ?? "")
+  .split(",")
+  .map((o) => o.trim().replace(/\/+$/, ""))
+  .filter(Boolean);
 
-export const corsHeaders = {
-  "Access-Control-Allow-Origin": allowedOrigin,
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
-  "Access-Control-Allow-Methods": "POST, OPTIONS",
-  "Vary": "Origin",
-};
+/** Where emailed links should send people: the app on the main site address. */
+export const appUrl = allowedOrigins[0] ? `${allowedOrigins[0]}/app/` : undefined;
 
-export function json(body: unknown, status = 200): Response {
+export function corsHeaders(req: Request): Record<string, string> {
+  const origin = req.headers.get("Origin") ?? "";
+  return {
+    "Access-Control-Allow-Origin": allowedOrigins.includes(origin) ? origin : (allowedOrigins[0] ?? ""),
+    "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+    "Access-Control-Allow-Methods": "POST, OPTIONS",
+    "Vary": "Origin",
+  };
+}
+
+export function json(req: Request, body: unknown, status = 200): Response {
   return new Response(JSON.stringify(body), {
     status,
-    headers: { ...corsHeaders, "Content-Type": "application/json", "Cache-Control": "no-store" },
+    headers: { ...corsHeaders(req), "Content-Type": "application/json", "Cache-Control": "no-store" },
   });
 }
 

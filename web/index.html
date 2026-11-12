@@ -1,16 +1,313 @@
 <!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="referrer" content="no-referrer">
-    <meta name="robots" content="noindex">
-    <title>CIS Tech Referral Desk</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;800&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500&display=swap">
-  </head>
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.ts"></script>
-  </body>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CIS Tech: answer every referral in 15 minutes</title>
+<meta name="description" content="CIS Tech helps small home health agencies, hospices and nursing homes answer hospital referrals accurately in 15 minutes or less.">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700;800&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500&display=swap">
+<style>
+/* Layout: logo-led header, split hero with a live referral clock, then plain stacked sections on a cool silver ground */
+:root {
+  --bg: #F4F6F9;
+  --surface: #FFFFFF;
+  --ink: #0B1B36;
+  --muted: #55657A;
+  --line: #D9E0E8;
+  --navy: #0A2E6E;
+  --blue: #1E6FD9;
+  --silver: #C9D2DC;
+  --good: #17845B;
+  --band: #0A2E6E;
+  --band-ink: #EAF0F7;
+  --band-muted: #AEBBCB;
+  --display: "Montserrat", "Helvetica Neue", Arial, sans-serif;
+  --body: "IBM Plex Sans", "Segoe UI", Roboto, sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #07142B; --surface: #0D1F3D; --ink: #E9EEF5; --muted: #A3B1C3; --line: #1F3457;
+    --navy: #8DB8F5; --blue: #4C93F0; --silver: #3A4D69; --good: #3FC08A;
+    --band: #0F2A57; --band-ink: #EAF0F7; --band-muted: #AEBBCB; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #07142B; --surface: #0D1F3D; --ink: #E9EEF5; --muted: #A3B1C3; --line: #1F3457;
+  --navy: #8DB8F5; --blue: #4C93F0; --silver: #3A4D69; --good: #3FC08A;
+  --band: #0F2A57; --band-ink: #EAF0F7; --band-muted: #AEBBCB; color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--ink); font-family: var(--body); font-size: 17px; line-height: 1.6; }
+.wrap { max-width: 1120px; margin: 0 auto; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+h1, h2, h3 { font-family: var(--display); text-wrap: balance; margin: 0; line-height: 1.12; }
+h1 { font-size: clamp(2.2rem, 5vw, 3.6rem); font-weight: 800; letter-spacing: -0.02em; }
+h2 { font-size: clamp(1.6rem, 3.2vw, 2.3rem); font-weight: 800; letter-spacing: -0.01em; }
+h3 { font-size: 1.1rem; font-weight: 700; }
+p { margin: 0; max-width: 62ch; }
+.eyebrow { font-family: var(--display); font-weight: 700; font-size: 0.78rem; letter-spacing: 0.16em; text-transform: uppercase; color: var(--blue); }
+.btn { display: inline-flex; align-items: center; gap: 8px; font-family: var(--display); font-weight: 700; font-size: 0.95rem; text-decoration: none; padding: 14px 22px; border-radius: 10px; background: var(--blue); color: #fff; border: 0; cursor: pointer; }
+.btn:hover { filter: brightness(1.08); }
+.btn:focus-visible, a:focus-visible { outline: 3px solid var(--blue); outline-offset: 3px; }
+.btn.ghost { background: transparent; color: var(--navy); border: 1.5px solid var(--silver); }
+
+/* header */
+header { padding-block: 20px; border-bottom: 1px solid var(--line); }
+header .wrap { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+.brand { display: flex; align-items: center; gap: 12px; text-decoration: none; color: var(--ink); }
+.brand svg { width: 44px; height: 44px; flex: none; }
+.brand b { font-family: var(--display); font-weight: 800; font-size: 1.35rem; letter-spacing: 0.02em; color: var(--navy); }
+.brand b span { font-weight: 600; color: var(--muted); margin-left: 4px; }
+.brand small { display: block; font-size: 0.66rem; letter-spacing: 0.2em; color: var(--muted); font-weight: 600; text-transform: uppercase; }
+header .btn { padding: 10px 16px; font-size: 0.88rem; }
+
+/* hero */
+.hero { padding-block: 64px 72px; }
+.hero .wrap { display: grid; grid-template-columns: 1.1fr 0.9fr; gap: 56px; align-items: center; }
+.hero-copy { display: grid; gap: 22px; min-width: 0; }
+.hero-copy h1 em { font-style: normal; color: var(--blue); }
+.hero-copy p { font-size: 1.15rem; color: var(--muted); }
+.ctas { display: flex; flex-wrap: wrap; gap: 12px; }
+
+.clock { background: var(--surface); border: 1px solid var(--line); border-radius: 16px; padding: 24px; box-shadow: 0 20px 50px -30px rgba(10, 46, 110, 0.45); min-width: 0; }
+.clock-head { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; flex-wrap: wrap; }
+.clock-head .label { font-size: 0.78rem; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
+.timer { font-family: var(--mono); font-size: 2.4rem; font-variant-numeric: tabular-nums; color: var(--navy); }
+.timer small { font-size: 1rem; color: var(--muted); }
+.bar { height: 6px; background: var(--line); border-radius: 3px; margin: 14px 0 20px; overflow: hidden; }
+.bar i { display: block; height: 100%; width: 73%; background: linear-gradient(90deg, var(--blue), var(--silver)); border-radius: 3px; }
+.steps { list-style: none; margin: 0; padding: 0; display: grid; gap: 14px; }
+.steps li { display: grid; grid-template-columns: 54px 1fr; gap: 12px; align-items: start; }
+.steps time { font-family: var(--mono); font-size: 0.9rem; color: var(--blue); font-variant-numeric: tabular-nums; padding-top: 1px; }
+.steps strong { display: block; font-weight: 600; }
+.steps span { font-size: 0.9rem; color: var(--muted); }
+.steps li.done strong::after { content: "Accepted"; margin-left: 8px; font-size: 0.72rem; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: var(--good); border: 1px solid currentColor; border-radius: 999px; padding: 1px 8px; vertical-align: 2px; }
+.clock-note { margin-top: 18px; font-size: 0.78rem; color: var(--muted); }
+
+/* sections */
+section.block { padding-block: 72px; border-top: 1px solid var(--line); }
+.section-head { display: grid; gap: 12px; margin-bottom: 36px; }
+.section-head p { color: var(--muted); }
+
+.problem .wrap { display: grid; grid-template-columns: 0.9fr 1.1fr; gap: 48px; }
+.pains { display: grid; gap: 22px; }
+.pains div { display: grid; gap: 4px; padding-left: 18px; border-left: 2px solid var(--silver); }
+.pains p { color: var(--muted); }
+
+.flow { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; list-style: none; margin: 0; padding: 0; counter-reset: s; }
+.flow li { display: grid; gap: 8px; align-content: start; min-width: 0; }
+.flow li::before { counter-increment: s; content: "Step " counter(s); font-family: var(--mono); font-size: 0.8rem; color: var(--blue); padding-bottom: 10px; border-bottom: 2px solid var(--blue); }
+.flow p { color: var(--muted); font-size: 0.95rem; }
+
+.fit { background: var(--band); color: var(--band-ink); }
+.fit .wrap { padding-block: 72px; display: grid; grid-template-columns: 1fr 1fr; gap: 48px; align-items: start; }
+.fit h2 { color: var(--band-ink); }
+.fit .eyebrow { color: #8DB8F5; }
+.fit p { color: var(--band-muted); }
+.fit ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 14px; }
+.fit li { padding: 14px 18px; border: 1px solid rgba(201, 210, 220, 0.25); border-radius: 10px; }
+.fit li b { display: block; font-family: var(--display); color: var(--band-ink); }
+.fit li span { font-size: 0.92rem; color: var(--band-muted); }
+
+.gets { display: grid; grid-template-columns: repeat(2, 1fr); gap: 32px 48px; }
+.gets div { display: grid; gap: 6px; min-width: 0; }
+.gets p { color: var(--muted); }
+
+.cta .wrap { display: grid; gap: 20px; justify-items: start; }
+.cta-box { background: var(--surface); border: 1px solid var(--line); border-radius: 16px; padding: 40px; display: grid; gap: 18px; width: 100%; }
+.cta-box p { color: var(--muted); }
+
+footer { padding-block: 32px; border-top: 1px solid var(--line); font-size: 0.85rem; color: var(--muted); }
+footer .wrap { display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+
+@media (max-width: 860px) {
+  .hero .wrap, .problem .wrap, .fit .wrap { grid-template-columns: 1fr; gap: 36px; }
+  .flow { grid-template-columns: repeat(2, 1fr); }
+  .gets { grid-template-columns: 1fr; }
+  .hero { padding-block: 40px 56px; }
+  .cta-box { padding: 24px; }
+}
+@media (max-width: 480px) {
+  .flow { grid-template-columns: 1fr; }
+  .brand small { display: none; }
+  
+}
+@media (prefers-reduced-motion: no-preference) {
+  .bar i { animation: fill 2.4s ease-out both; }
+  @keyframes fill { from { width: 0; } }
+}
+
+/* site-only additions: header links and demo form */
+.top-links { display: flex; align-items: center; gap: 18px; }
+.signin { font-family: var(--display); font-weight: 700; font-size: 0.9rem; color: var(--navy); text-decoration: none; }
+.signin:hover { text-decoration: underline; }
+.demo-form { display: grid; grid-template-columns: 1fr 1fr; gap: 14px 18px; margin-top: 6px; }
+.demo-form label { display: grid; gap: 6px; font-size: 0.85rem; font-weight: 600; color: var(--muted); min-width: 0; }
+.demo-form input, .demo-form select, .demo-form textarea { font: inherit; font-weight: 400; color: var(--ink); background: var(--bg); border: 1px solid var(--line); border-radius: 10px; padding: 11px 12px; width: 100%; }
+.demo-form .full { grid-column: 1 / -1; }
+.demo-form .hp { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
+.form-foot { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
+.form-status { font-size: 0.95rem; color: var(--muted); }
+.form-status.ok { color: var(--good); font-weight: 600; }
+.form-status.err { color: #B42318; }
+.fine { font-size: 0.8rem; color: var(--muted); }
+@media (max-width: 640px) { .demo-form { grid-template-columns: 1fr; } }
+@media (max-width: 480px) { header .btn { display: inline-flex; padding: 8px 12px; font-size: 0.8rem; } .top-links { gap: 12px; } .brand b { font-size: 1.1rem; } }
+.signin, .top-links .btn { white-space: nowrap; }
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <linearGradient id="lg-blue" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#1E6FD9"/><stop offset="1" stop-color="#0A2E6E"/></linearGradient>
+    <linearGradient id="lg-silver" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#FFFFFF"/><stop offset="0.45" stop-color="#D5DCE4"/><stop offset="1" stop-color="#9AA6B4"/></linearGradient>
+    <linearGradient id="lg-staff" gradientUnits="userSpaceOnUse" x1="53" y1="0" x2="67" y2="0"><stop offset="0" stop-color="#FFFFFF"/><stop offset="0.5" stop-color="#D5DCE4"/><stop offset="1" stop-color="#9AA6B4"/></linearGradient>
+    <symbol id="mark" viewBox="0 0 120 120">
+      <rect x="4" y="4" width="112" height="112" rx="30" fill="url(#lg-blue)"/>
+      <rect x="56" y="30" width="8" height="72" rx="4" fill="url(#lg-staff)"/>
+      <circle cx="60" cy="22" r="7" fill="url(#lg-silver)"/>
+      <circle cx="60" cy="22" r="2.8" fill="#0A2E6E"/>
+      <path d="M76 36 C52 30 42 45 60 51 C78 57 78 68 60 72 C42 76 42 88 60 92 C67 94 70 98 66 102" fill="none" stroke="#0E3A82" stroke-width="12" stroke-linecap="round"/>
+      <path d="M76 36 C52 30 42 45 60 51 C78 57 78 68 60 72 C42 76 42 88 60 92 C67 94 70 98 66 102" fill="none" stroke="url(#lg-silver)" stroke-width="6.5" stroke-linecap="round"/>
+      <circle cx="77" cy="36.5" r="5" fill="url(#lg-silver)"/>
+      <rect x="54" y="67.5" width="12" height="9" fill="#0E3A82"/>
+      <rect x="56" y="62" width="8" height="20" fill="url(#lg-staff)"/>
+    </symbol>
+  </defs>
+</svg>
+
+<header>
+  <div class="wrap">
+    <a class="brand" href="#top" aria-label="CIS Tech home">
+      <svg role="img" aria-label="CIS Tech logo"><use href="#mark"/></svg>
+      <div><b>CIS<span>TECH</span></b><small>Central Information System</small></div>
+    </a>
+    <nav class="top-links"><a class="signin" href="/app/">Sign in</a><a class="btn" href="#demo">Book a demo</a></nav>
+  </div>
+</header>
+
+<main id="top">
+  <section class="hero">
+    <div class="wrap">
+      <div class="hero-copy">
+        <span class="eyebrow">For home health, hospice &amp; nursing homes</span>
+        <h1>Answer every referral in <em>15&nbsp;minutes</em> or less.</h1>
+        <p>Hospitals and discharge planners send the same referral to several providers, and the first accurate yes usually gets the patient. CIS Tech checks each referral against what your team can actually take on, so you can respond fast and get it right.</p>
+        <div class="ctas">
+          <a class="btn" href="#demo">Book a 15-minute demo</a>
+          <a class="btn ghost" href="#how">See how it works</a>
+        </div>
+      </div>
+
+      <div class="clock" aria-label="Example referral timeline">
+        <div class="clock-head">
+          <span class="label">Referral · Home health</span>
+          <span class="timer">11:04 <small>/ 15:00</small></span>
+        </div>
+        <div class="bar"><i></i></div>
+        <ol class="steps">
+          <li><time>0:00</time><div><strong>Referral received</strong><span>Discharge planner, regional hospital</span></div></li>
+          <li><time>2:10</time><div><strong>Patient details organized</strong><span>Diagnosis, orders, insurance, address</span></div></li>
+          <li><time>6:35</time><div><strong>Matched to your capabilities</strong><span>Wound care, payer accepted, nurse available in that area</span></div></li>
+          <li class="done"><time>11:04</time><div><strong>Response sent</strong><span>Your admissions lead approved with one tap</span></div></li>
+        </ol>
+        <p class="clock-note">Example referral for illustration.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="block problem">
+    <div class="wrap">
+      <div class="section-head">
+        <span class="eyebrow">The problem</span>
+        <h2>Small agencies lose referrals to slow answers, not bad care.</h2>
+      </div>
+      <div class="pains">
+        <div><h3>The referral arrives scattered</h3><p>A fax, a portal message, a phone call, a PDF. Someone has to pull it together before anyone can decide.</p></div>
+        <div><h3>One person wears every hat</h3><p>With 50 clients or fewer, your admissions person is also scheduling, verifying insurance and answering the phone.</p></div>
+        <div><h3>A slow yes looks like a no</h3><p>By the time clinical review finishes, the discharge planner has already placed the patient with someone who answered first.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="block" id="how">
+    <div class="wrap">
+      <div class="section-head">
+        <span class="eyebrow">How it works</span>
+        <h2>From referral to answer, in one place.</h2>
+      </div>
+      <ol class="flow">
+        <li><h3>Collect</h3><p>Referrals from hospitals, physicians and case managers land in one central inbox, whatever channel they came from.</p></li>
+        <li><h3>Organize</h3><p>CIS Tech pulls out what matters for a decision: diagnosis, care needs, payer, location and start date.</p></li>
+        <li><h3>Match</h3><p>Each patient is checked against your agency's profile: the services you offer, the payers you take, your staff and your capacity.</p></li>
+        <li><h3>Respond</h3><p>Your team sees a clear accept, decline or needs-review recommendation and answers the referral source inside 15 minutes.</p></li>
+      </ol>
+    </div>
+  </section>
+
+  <section class="fit">
+    <div class="wrap">
+      <div class="section-head">
+        <span class="eyebrow">Who it's for</span>
+        <h2>Built for small healthcare businesses.</h2>
+        <p>If you serve around 50 clients or fewer and every admission counts, CIS Tech gives you the speed of a large admissions department without hiring one.</p>
+      </div>
+      <ul>
+        <li><b>Home health agencies</b><span>Skilled nursing, therapy and aide services at home</span></li>
+        <li><b>Hospice providers</b><span>Where a fast, compassionate answer matters most to families</span></li>
+        <li><b>Nursing homes &amp; skilled nursing facilities</b><span>Know right away whether you have the bed and the staff</span></li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="block">
+    <div class="wrap">
+      <div class="section-head">
+        <span class="eyebrow">What you get</span>
+        <h2>More of the right referrals, answered faster.</h2>
+      </div>
+      <div class="gets">
+        <div><h3>Speed to lead</h3><p>A 15-minute response target on every referral, with a visible clock so nothing sits in an inbox.</p></div>
+        <div><h3>Qualified leads only</h3><p>Referrals that don't fit your services or payers are flagged early, so your team spends time on admissions you can actually take.</p></div>
+        <div><h3>Accurate answers</h3><p>Decisions are based on your real capabilities, which means fewer accepted referrals that fall apart at intake.</p></div>
+        <div><h3>Stronger referral relationships</h3><p>Discharge planners remember who answers quickly. See which hospitals and physicians send you the most patients.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="block cta" id="demo">
+    <div class="wrap">
+      <div class="cta-box">
+        <span class="eyebrow">Get started</span>
+        <h2>See your next referral answered in 15 minutes.</h2>
+        <p>Book a short demo. We'll walk through how CIS Tech fits your agency's services, payers and referral sources, and set up your facility profile together.</p>
+        <form id="demo-form" class="demo-form" novalidate>
+          <label>Your name<input id="d-name" name="name" autocomplete="name" required maxlength="120"></label>
+          <label>Agency name<input id="d-business" name="business" autocomplete="organization" required maxlength="200"></label>
+          <label>Email<input id="d-email" name="email" type="email" autocomplete="email" required maxlength="320"></label>
+          <label>Phone<input id="d-phone" name="phone" type="tel" autocomplete="tel" maxlength="40"></label>
+          <label>Type of agency<select id="d-type" name="type"><option value="">Choose one</option><option>Home health</option><option>Hospice</option><option>Nursing home / SNF</option><option>Personal care / home care</option><option>Other</option></select></label>
+          <label>Number of clients or beds<select id="d-size" name="size"><option value="">Choose one</option><option>25 or fewer</option><option>26 to 50</option><option>51 to 100</option><option>101 to 500</option><option>More than 500</option></select></label>
+          <label class="full">What would you like to fix first? (optional)<textarea id="d-message" name="message" rows="3" maxlength="2000"></textarea></label>
+          <label class="hp" aria-hidden="true">Website<input id="d-website" name="website" tabindex="-1" autocomplete="off"></label>
+          <div class="full form-foot">
+            <button class="btn" type="submit" id="d-submit">Request a demo</button>
+            <p class="form-status" id="d-status" role="status"></p>
+          </div>
+          <p class="full fine">Please don't include patient information in this form.</p>
+        </form>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <span>© 2026 CIS Tech · Central Information System</span>
+    <span>Founded by Tonya L. Murphy</span>
+  </div>
+</footer>
+<script type="module" src="/src/site.ts"></script>
+</body>
 </html>
