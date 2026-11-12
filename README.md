@@ -53,8 +53,13 @@ npm run dev                     # http://localhost:5173
 npm run build                   # production files in web/dist
 ```
 
-Host `web/dist` on Netlify, Cloudflare Pages or Vercel at `APP_ORIGIN`, with
-the headers from `web/public/_headers`.
+Host it on Vercel: import this repository, set **Root Directory** to `web`, and
+add `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY` and `VITE_PROTOTYPE_MODE`
+as environment variables. `web/vercel.json` sets the build and the security
+headers. (On Netlify or Cloudflare Pages, use `web/public/_headers` instead.)
+
+After the first deploy, set the Supabase function secret `APP_ORIGIN` and the
+Auth Site URL to the Vercel address, or the app can't call its functions.
 
 The first person to sign up creates the agency and becomes its owner. They
 invite teammates from the Team tab.
