@@ -26,7 +26,9 @@ const ReferralFields = z.object({
   notes: z.string().describe("One or two sentences of anything else a reviewer should know, or empty"),
 });
 
-const anthropic = new Anthropic(); // ANTHROPIC_API_KEY, from an organization with a signed BAA
+// ANTHROPIC_API_KEY comes from an organization with a signed BAA. Created on first use so a
+// missing key gives a clear error instead of stopping the function from starting.
+let anthropic: Anthropic | null = null;
 
 function buildPrompt(text: string, providerType: string, today: string): string {
   return `You read healthcare referrals (hospital discharge, physician office or case manager referrals) for a ${labelOf(PROVIDER_TYPES, providerType).toLowerCase()} admissions team and pull out the fields they need to decide quickly.
@@ -66,6 +68,12 @@ Deno.serve(async (req) => {
 
   const { data: agency } = await caller.from("agencies").select("provider_type").eq("id", agencyId).single();
 
+  if (!Deno.env.get("ANTHROPIC_API_KEY")) {
+    console.error("extract-referral: ANTHROPIC_API_KEY is not set");
+    return json(req, { error: "Reading with Claude isn't set up yet. Fill in the form by hand." }, 503);
+  }
+  anthropic ??= new Anthropic();
+
   let fields: z.infer<typeof ReferralFields>;
   try {
     const response = await anthropic.beta.messages.parse({
@@ -92,7 +100,9 @@ Deno.serve(async (req) => {
       console.error(`extract-referral: Claude API error ${err.status}`);
       return json(req, { error: "Claude is unavailable right now. Fill in the form by hand." }, 502);
     }
-    console.error("extract-referral: unexpected error");
+    // SDK errors carry no referral text; for anything else log only the error type.
+    const detail = err instanceof Anthropic.AnthropicError ? `${err.name}: ${err.message.slice(0, 200)}` : (err as Error)?.name ?? "unknown";
+    console.error(`extract-referral: unexpected error (${detail})`);
     return json(req, { error: "Something went wrong reading the referral." }, 500);
   }
 
